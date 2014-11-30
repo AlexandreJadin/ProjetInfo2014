@@ -2,7 +2,7 @@
 % -----------
 % Version 2.0.0.0.1-prealpha-b10056 pa
      
-local Mix Interprete Projet CWD ToNote ToDuree Bourdon Etirer Duree Transpose GetH ToVectorAudio EvaluateFunction ToFrequency in
+local Mix Interprete Projet CWD ToNote ToDuree Bourdon Etirer Duree Transpose GetH ToVectorAudio EvaluateFunction ToFrequency Merge MergeX Intensity in
        % CWD contient le chemin complet vers le dossier contenant le fichier 'code.oz'
        % modifiez sa valeur pour correspondre à votre système.
    CWD = {Property.condGet 'testcwd' '/home/justice/Documents/Projet2014/'}
@@ -39,6 +39,40 @@ local Mix Interprete Projet CWD ToNote ToDuree Bourdon Etirer Duree Transpose Ge
 	    {ToVectorAudio ListEchants}
 	 end
       end % fun
+      
+      fun{Merge Musics}
+	 case Musics
+	    of Float#Musique|T
+	    then  {MergeX {Intensity Float Musique} {Merge T}}
+	 [] nil then nil
+	 []Float#Musique then {Intensity Float Musique}
+	 end
+      end
+
+      fun{MergeX Music1 Music2}
+	 case Music2 of H|T then 
+	    case H of L1|L2 then % Music2 est une liste de musiques
+	       {MergeX {MergeX Music1 H} T}
+	    []nil then Music1
+	    [] E then Music1.1+Music2.1|{MergeX Music1.2 Music2.2} %Music 2 est une liste de float
+	    end
+	 end
+      end
+
+      fun{Intensity Float Musique Acc} % peut être remplacé par  {List.map X fun {$ N} A*N end} Acc est un compteur pour {Fondu Open Close L1}
+	 case Musique
+	 of H|T then H*Float|{Intensity Float Musique}
+	 [] nil then nil
+	 end
+      end
+
+      fun{Fondu Open Close Music}
+	 case Music of H|T then
+	    case H of L.1 L.2 then {Append {Fondu Open Close L1} {Fondu Open Close L2}}
+	    [] E then E %for 44100*open Intensity boucle?
+	    end
+	 end
+      end  
 
       fun {EvaluateFunction Function Times}
 	 local EvaluateFunctionAcc in
